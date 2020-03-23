@@ -1,17 +1,37 @@
 from flask import request
 
+# dynamically build pandas filter query
 def build_filter(query, filter_opts):
-  # currently only supports equality 
-  # 2D array to represent the column at index 0 and the value at index 1
-  filters = []
-  for f in query:
-    if f in filter_opts:
-      filters.extend([f, request.args.get(f)])
+  filter_query = ''
 
-  return filters
+  if any(key in query for key in filter_opts):
+    # these values will be zipped into our eventual query
+    columns = []
+    conditions = []
+    values = []
+
+    # preprocessing for multiple filter queries done here
+    for f in query:
+      print("f is" + f)
+      if f in filter_opts:
+        values.append(request.args.get(f)) # appending to values first as we might change the key value represented by f below
+        if ' ' in f:
+          f = f'`{f}`' # to run a pandas query on columns with spaces you need to wrap the column name in backticks
+
+        columns.append(f)
+        # currently only supports equality
+        conditions.append('==')
+        
+    if len(columns) > 0:
+      filter_query = ' & '.join(f'{i} {j} {repr(k)}' for i, j, k in zip(columns, conditions, values))
+
+  return filter_query
 
 def build_sort(query):
   # Get an array of the sort values passed in
+  if query is None:
+    return ''
+  
   sort_args = query.split(',')
   # Dict to determine whether to order in ascending or descending order
   # The order is determined from the prefix of each sort query string (a or d)
@@ -23,3 +43,15 @@ def build_sort(query):
   sort_fields = [x[2:] for x in sort_args] 
   sort_query = [sort_fields, sort_order]
   return sort_query
+
+# method used to return the ultimate query to our data used
+# currently only returning 100 items
+def build_query(df, sort_query, filter_query):
+  if len(sort_query) > 0 and len(filter_query) > 0:
+    return df.query(filter_query).sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+  elif len(sort_query) > 0:
+    return df.sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+  else:
+    return df.query(filter_query).head(100).to_json(orient='split')
+
+  

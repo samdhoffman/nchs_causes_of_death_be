@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from nchs_causes_of_death import app
-from nchs_causes_of_death.utils import build_filter, build_sort
+from nchs_causes_of_death.utils import build_filter, build_sort, build_query
 import pandas as pd
 
 df = None
@@ -18,16 +18,11 @@ def index():
   
   if request.args and ('sort' in request.args or any(key in request.args for key in FILTER_OPTS)):
     # process sort queries
-    if 'sort' in request.args:
-      sort_query = build_sort(request.args.get('sort'))
-      data = df.sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
-      return data
-    
-    # process filter queries
+    sort_query = build_sort(request.args.get('sort'))
     filter_query = build_filter(request.args, FILTER_OPTS)
-    if len(filter_query) > 0:      
-      filter = df[filter_query[0]] == filter_query[1]
-      data = df.loc[filter].head(100).to_json(orient='split')
-      return data
+
+    data = build_query(df, sort_query, filter_query)
+
+    return data
   else:
     return df.head(100).to_json(orient='split')
