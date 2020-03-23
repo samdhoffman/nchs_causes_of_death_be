@@ -12,7 +12,6 @@ def build_filter(query, filter_opts):
 
     # preprocessing for multiple filter queries done here
     for f in query:
-      print("f is" + f)
       if f in filter_opts:
         values.append(request.args.get(f)) # appending to values first as we might change the key value represented by f below
         if ' ' in f:
