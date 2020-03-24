@@ -1,4 +1,7 @@
-from flask import request
+from flask import request, jsonify
+import math
+
+PAGE_SIZE = 100
 
 # dynamically build pandas filter query
 def build_filter(query, filter_opts):
@@ -47,10 +50,22 @@ def build_sort(query):
 # currently only returning 100 items
 def build_query(df, sort_query, filter_query):
   if len(sort_query) > 0 and len(filter_query) > 0:
-    return df.query(filter_query).sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+    # return df.query(filter_query).sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+    return df.query(filter_query).sort_values(by=sort_query[0], ascending=sort_query[1])
   elif len(sort_query) > 0:
-    return df.sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+    # return df.sort_values(by=sort_query[0], ascending=sort_query[1]).head(100).to_json(orient='split')
+    return df.sort_values(by=sort_query[0], ascending=sort_query[1])
   else:
-    return df.query(filter_query).head(100).to_json(orient='split')
+    # return df.query(filter_query).head(100).to_json(orient='split')
+    return df.query(filter_query)
 
+def paginate_records(df, page):
+  # df shape gives us a tuple with the num of columns and index 0 and num of rows at index 1
+  num_pages = math.ceil(df.shape[0]/PAGE_SIZE)
+
+  start_index = page * PAGE_SIZE
+  end_index = (page + 1) * PAGE_SIZE
   
+  data = df.iloc[start_index:end_index].to_json(orient='split')
+
+  return jsonify(records=data, pages=num_pages)
