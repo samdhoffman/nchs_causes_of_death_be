@@ -47,7 +47,6 @@ def build_sort(query):
   return sort_query
 
 # method used to return the ultimate query to our data used
-# currently only returning 100 items
 def build_query(df, sort_query, filter_query):
   if len(sort_query) > 0 and len(filter_query) > 0:
     return df.query(filter_query).sort_values(by=sort_query[0], ascending=sort_query[1])

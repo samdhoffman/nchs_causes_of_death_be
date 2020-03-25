@@ -18,7 +18,7 @@ def index():
     page = request.args.get('page', 0, type=int)
     
     if request.args and ('sort' in request.args or any(key in request.args for key in FILTER_OPTS)):
-      # process sort queries
+      # process sort and filter queries
       sort_query = build_sort(request.args.get('sort'))
       filter_query = build_filter(request.args, FILTER_OPTS)
 
