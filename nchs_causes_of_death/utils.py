@@ -1,7 +1,7 @@
 from flask import request, jsonify
 import math
 
-PAGE_SIZE = 100
+PAGE_SIZE = 50
 
 # dynamically build pandas filter query
 def build_filter(query, filter_opts):
