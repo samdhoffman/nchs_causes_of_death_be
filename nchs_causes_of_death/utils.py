@@ -37,7 +37,7 @@ def build_sort(query):
   sort_args = query.split(',')
   # Dict to determine whether to order in ascending or descending order
   # The order is determined from the prefix of each sort query string (a or d)
-  # a = ascending | d=descending
+  # a = ascending | d = descending
   order_opts = {'a': True, 'd': False}
   order_query = [x[0] for x in sort_args]
   sort_order = [order_opts[x] for x in order_query]
