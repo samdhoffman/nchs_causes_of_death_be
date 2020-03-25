@@ -12,19 +12,25 @@ def initialize():
   global df
   df = pd.read_csv('./data/NCHS_Leading_Causes_of_Death_United_States.csv')
 
-# will need error handling
 @app.route('/causes-of-death')
 def index():
-  page = request.args.get('page', 0, type=int)
-  
-  if request.args and ('sort' in request.args or any(key in request.args for key in FILTER_OPTS)):
-    # process sort queries
-    sort_query = build_sort(request.args.get('sort'))
-    filter_query = build_filter(request.args, FILTER_OPTS)
+  try:
+    page = request.args.get('page', 0, type=int)
+    
+    if request.args and ('sort' in request.args or any(key in request.args for key in FILTER_OPTS)):
+      # process sort queries
+      sort_query = build_sort(request.args.get('sort'))
+      filter_query = build_filter(request.args, FILTER_OPTS)
 
-    data = build_query(df, sort_query, filter_query)
-    cur_page_data = paginate_records(data, page)
-  else:
-    cur_page_data = paginate_records(df, page)
+      data = build_query(df, sort_query, filter_query)
+      cur_page_data = paginate_records(data, page)
+    else:
+      cur_page_data = paginate_records(df, page)
 
-  return cur_page_data
+    return cur_page_data
+  except Exception as e:
+    return not_found(str(e))
+
+@app.errorhandler(404)
+def not_found(exception):
+  return jsonify(error=exception),404
