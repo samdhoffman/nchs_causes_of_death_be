@@ -8,7 +8,9 @@ This project has a complementary front end built with React that can be found at
 
 **Steps to Get Started**
 1. Clone the project
-2. Run `python3 run.py` to start the server and you are ready to go!
+2. Install the project dependencies by running `pipenv install` in the root directory
+3. Activate your virtual environment by running `pipenv shell` in the root directory
+4. Run `python3 run.py` to start the server and you are ready to go!
 
 To be able to view the data created data, make sure you set up the front end using the repository link above.
 
